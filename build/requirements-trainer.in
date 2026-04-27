@@ -1,0 +1,7 @@
+tensorflow==2.21.0
+pymongo
+scikit-learn
+numpy
+joblib
+requests
+redis

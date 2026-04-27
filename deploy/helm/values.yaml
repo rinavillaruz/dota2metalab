@@ -1,0 +1,27 @@
+# Global settings
+global:
+  namespace: dota2metalab
+
+# Image settings
+image:
+  repository: dota2metalab
+  tag: latest
+  pullPolicy: Never
+
+# MongoDB settings
+mongodb:
+  replicas: 1
+  image: mongo:7.0
+  port: 27017
+  persistence:
+    size: 5Gi
+
+# API settings
+api:
+  replicas: 1
+  port: 8080
+
+# Models storage
+models:
+  persistence:
+    size: 1Gi

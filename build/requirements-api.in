@@ -1,0 +1,6 @@
+flask
+tensorflow==2.21.0
+scikit-learn
+pymongo
+joblib
+numpy

@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: dota2metalab-trainer
+  namespace: {{ .Values.global.namespace }}
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "2"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  backoffLimit: 3 #defaults to 6
+  template:
+    spec:
+      containers:
+        - name: trainer
+          image: {{ .Values.image.repository }}-trainer:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: MONGO_URI
+              value: mongodb://mongodb:{{ .Values.mongodb.port }}
+            - name: MODEL_DIR
+              value: /app/models
+            - name: PYTHONPATH
+              value: /app
+          volumeMounts:
+            - name: models-storage
+              mountPath: /app/models
+      volumes:
+        - name: models-storage
+          persistentVolumeClaim:
+            claimName: models-pvc
+      restartPolicy: Never

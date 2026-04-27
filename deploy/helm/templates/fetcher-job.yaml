@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: dota2metalab-fetcher
+  namespace: {{ .Values.global.namespace }}
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  backoffLimit: 3 #defaults to 6
+  template:
+    spec:
+      containers:
+        - name: fetcher
+          image: {{ .Values.image.repository }}-trainer:{{ .Values.image.tag }}
+          command: ["python", "scripts/store_database.py"]
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: MONGO_URI
+              value: mongodb://mongodb:{{ .Values.mongodb.port }}
+            - name: PYTHONPATH
+              value: /app
+      restartPolicy: Never

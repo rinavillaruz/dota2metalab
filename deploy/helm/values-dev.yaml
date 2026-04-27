@@ -1,0 +1,13 @@
+# Global settings
+global:
+  namespace: dota2metalab-dev
+
+# MongoDB settings
+mongodb:
+  persistence:
+    size: 2Gi
+
+# Models storage
+models:
+  persistence:
+    size: 500Mi

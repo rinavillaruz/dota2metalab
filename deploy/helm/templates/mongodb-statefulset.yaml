@@ -29,6 +29,7 @@ spec:
     - metadata:
         name: mongodb-data
       spec:
+        storageClassName: {{ .Values.mongodb.persistence.storageClassName }}
         accessModes:
           - ReadWriteOnce
         resources:

@@ -13,3 +13,9 @@ spec:
   resources:
     requests:
       storage: {{ .Values.models.persistence.size }}
+  storageClassName: {{ .Values.models.persistence.storageClassName }}
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: {{ .Values.models.persistence.size }}

@@ -18,13 +18,19 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
+      - name: Debug base change check
+        run: |
+          echo "Changed files:"
+          git diff --name-only HEAD~1 HEAD
+          echo "HEAD~1 exists:"
+          git rev-parse HEAD~1 || echo "no HEAD~1"
       - name: Check if base change
         id: base-change
         run: |
           if ! git rev-parse HEAD~1 >/dev/null 2>&1; then
             echo "changed=true" >> $GITHUB_OUTPUT
           else
-            git diff --name-only HEAD~1 HEAD | grep -q "Dockerfile.base\|requirements-base" \
+            git diff --name-only HEAD~1 HEAD | grep -q "Dockerfile.base\|requirements-base.txt" \
               && echo "changed=true" >> $GITHUB_OUTPUT \
               || echo "changed=false" >> $GITHUB_OUTPUT
           fi

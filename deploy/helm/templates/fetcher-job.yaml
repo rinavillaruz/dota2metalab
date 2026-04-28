@@ -3,10 +3,6 @@ kind: Job
 metadata:
   name: dota2metalab-fetcher
   namespace: {{ .Values.global.namespace }}
-  annotations:
-    "helm.sh/hook": pre-install
-    "helm.sh/hook-weight": "1"
-    "helm.sh/hook-delete-policy": hook-succeeded
 spec:
   backoffLimit: 3 #defaults to 6
   template:

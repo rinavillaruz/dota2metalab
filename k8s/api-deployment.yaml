@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
         - name: api
-          image: dota2metalab-api:latest
-          imagePullPolicy: Never
+          image: rinavillaruz/dota2metalab-api:latest 
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:

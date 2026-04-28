@@ -99,7 +99,9 @@ jobs:
           context: .
           file: build/Dockerfile.api
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/dota2metalab-api:${{ github.sha }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/dota2metalab-api:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/dota2metalab-api:latest
           cache-from: type=gha,scope=api
           cache-to: type=gha,mode=max
   check-trainer:
@@ -147,7 +149,9 @@ jobs:
           context: .
           file: build/Dockerfile.trainer
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/dota2metalab-trainer:${{ github.sha }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/dota2metalab-trainer:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/dota2metalab-trainer:latest
           cache-from: type=gha,scope=trainer
           cache-to: type=gha,mode=max
   check-fetcher:
@@ -195,17 +199,22 @@ jobs:
           context: .
           file: build/Dockerfile.fetcher
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/dota2metalab-fetcher:${{ github.sha }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/dota2metalab-fetcher:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/dota2metalab-fetcher:latest
           cache-from: type=gha,scope=fetcher
           cache-to: type=gha,mode=max
       
   deploy-dev:
     runs-on: self-hosted
     needs: [ build-api, build-trainer, build-fetcher ]
-    if: always() && (needs.build-api.result == 'success' || needs.build-api.result == 'skipped')
+    if: always() && 
+      (needs.build-api.result == 'success' || needs.build-api.result == 'skipped') &&
+      (needs.build-trainer.result == 'success' || needs.build-trainer.result == 'skipped') &&
+      (needs.build-fetcher.result == 'success' || needs.build-fetcher.result == 'skipped')
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
       - name: Deploy to dev
         run: |
-          ./cli/deploy.sh ${{ github.sha }} dev
+          ./cli/deploy.sh latest dev

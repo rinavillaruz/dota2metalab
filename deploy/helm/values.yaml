@@ -4,7 +4,7 @@ global:
 
 # Image settings
 image:
-  repository: dota2metalab
+  repository: rinavillaruz/dota2metalab
   tag: latest
   pullPolicy: Never
 

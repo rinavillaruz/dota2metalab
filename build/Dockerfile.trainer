@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM rinavillaruz/dota2metalab-base:latest
 
 WORKDIR /app
 

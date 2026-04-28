@@ -25,32 +25,10 @@ function check_dependencies() {
         exit 1
     fi
 
-    if ! command -v docker &> /dev/null; then
-        echo "Error: docker not installed"
-        exit 1
-    fi
-
     echo "All dependencies found!"
 }
 
-function build_images() {
-    echo "Building Docker Images..."
-
-    for service in api trainer fetcher; do 
-        echo "Building dota2metalab-$service..."
-        if [ "$service" == "fetcher" ] || [ "$service" == 'trainer' ]; then
-            docker build -f build/Dockerfile.trainer -t dota2metalab-$service:$IMAGE_TAG .
-        else
-            docker build -f build/Dockerfile.$service -t dota2metalab-$service:$IMAGE_TAG .
-        fi
-    done
-
-    echo "All Images Built"
-}
-
 check_dependencies
-
-build_images
 
 if [ "$ENV" == 'dev' ]; then
     VALUES_FILE='deploy/helm/values-dev.yaml'

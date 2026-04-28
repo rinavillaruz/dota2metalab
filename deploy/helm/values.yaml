@@ -6,7 +6,7 @@ global:
 image:
   repository: rinavillaruz/dota2metalab
   tag: latest
-  pullPolicy: Never
+  pullPolicy: Always
 
 # MongoDB settings
 mongodb:

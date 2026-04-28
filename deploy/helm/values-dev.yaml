@@ -6,8 +6,10 @@ global:
 mongodb:
   persistence:
     size: 2Gi
+    storageClassName: gp2
 
 # Models storage
 models:
   persistence:
     size: 500Mi
+    storageClassName: gp2

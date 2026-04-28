@@ -62,6 +62,8 @@ def predict():
         'predicted_winner': 'Radiant' if prediction > 0.5 else 'Dire'
     })
 
+# test change
+
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 8080))
     app.run(host='0.0.0.0', port=port, debug=True)

@@ -211,6 +211,8 @@ jobs:
   deploy-dev:
     runs-on: self-hosted
     needs: [ build-api, build-trainer, build-fetcher ]
+    permissions:
+      contents: write
     if: always() && 
       (needs.build-api.result == 'success' || needs.build-api.result == 'skipped') &&
       (needs.build-trainer.result == 'success' || needs.build-trainer.result == 'skipped') &&

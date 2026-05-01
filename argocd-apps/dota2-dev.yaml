@@ -10,7 +10,7 @@ spec:
 
   source:
     repoURL: https://github.com/rinavillaruz/dota2metalab
-    targetRevision: main
+    targetRevision: dev
     path: deploy/helm
     helm:
       valueFiles:

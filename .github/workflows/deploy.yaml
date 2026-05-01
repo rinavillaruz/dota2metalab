@@ -205,16 +205,30 @@ jobs:
           cache-from: type=gha,scope=fetcher
           cache-to: type=gha,mode=max
       
-  deploy-dev:
-    runs-on: self-hosted
-    needs: [ build-api, build-trainer, build-fetcher ]
-    if: always() && 
-      (needs.build-api.result == 'success' || needs.build-api.result == 'skipped') &&
-      (needs.build-trainer.result == 'success' || needs.build-trainer.result == 'skipped') &&
-      (needs.build-fetcher.result == 'success' || needs.build-fetcher.result == 'skipped')
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-      - name: Deploy to dev
-        run: |
-          ./cli/deploy.sh latest dev
+deploy-dev:
+  runs-on: self-hosted
+  needs: [ build-api, build-trainer, build-fetcher ]
+  if: always() && 
+    (needs.build-api.result == 'success' || needs.build-api.result == 'skipped') &&
+    (needs.build-trainer.result == 'success' || needs.build-trainer.result == 'skipped') &&
+    (needs.build-fetcher.result == 'success' || needs.build-fetcher.result == 'skipped')
+  steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}  # needs write permission to push
+
+    - name: Update image tag in values-dev.yaml
+      run: |
+        IMAGE_TAG="${{ github.sha }}"
+        IMAGE_TAG="${IMAGE_TAG:0:7}"
+
+        echo "Updating values-dev.yaml with tag: $IMAGE_TAG"
+
+        sed -i "s/tag:.*/tag: $IMAGE_TAG/" deploy/helm/values-dev.yaml
+
+        git config user.email "142535552+rinavillaruz@users.noreply.github.com"
+        git config user.name "rinavillaruz"
+        git add deploy/helm/values-dev.yaml
+        git commit -m "ci: update image tag to $IMAGE_TAG"
+        git push origin dev

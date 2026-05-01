@@ -56,6 +56,7 @@ jobs:
           cache-to: type=gha,mode=max
   check-api:
     runs-on: self-hosted
+    needs: check-base
     outputs:
       changed: ${{ steps.check.outputs.changed }}
     steps:
@@ -106,6 +107,7 @@ jobs:
           cache-to: type=gha,mode=max
   check-trainer:
     runs-on: self-hosted
+    needs: check-base
     outputs:
       changed: ${{ steps.check.outputs.changed }}
     steps:
@@ -156,6 +158,7 @@ jobs:
           cache-to: type=gha,mode=max
   check-fetcher:
     runs-on: self-hosted
+    needs: check-base
     outputs:
       changed: ${{ steps.check.outputs.changed }}
     steps:
@@ -222,10 +225,9 @@ jobs:
         run: |
           IMAGE_TAG="${{ github.sha }}"
           IMAGE_TAG="${IMAGE_TAG:0:7}"
-
           echo "Updating values-dev.yaml with tag: $IMAGE_TAG"
 
-          sed -i "s/tag:.*/tag: $IMAGE_TAG/" deploy/helm/values-dev.yaml
+          perl -i -pe "s/tag:.*/tag: $IMAGE_TAG/" deploy/helm/values-dev.yaml
 
           git config user.email "142535552+rinavillaruz@users.noreply.github.com"
           git config user.name "rinavillaruz"

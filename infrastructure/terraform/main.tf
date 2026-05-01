@@ -129,3 +129,29 @@ resource "aws_eks_addon" "ebs_csi_driver" {
     aws_iam_role_policy_attachment.ebs_csi_driver
   ]
 }
+
+resource "helm_release" "jenkins" {
+  name             = "jenkins"
+  repository       = "https://charts.jenkins.io"
+  chart            = "jenkins"
+  version          = "5.8.11"
+  namespace        = "jenkins"
+  create_namespace = true
+  wait             = true
+  timeout          = 600
+
+  set {
+    name  = "persistence.storageClass"
+    value = "gp2"
+  }
+
+  set {
+    name  = "persistence.size"
+    value = "8Gi"
+  }
+
+  depends_on = [
+    module.eks,
+    aws_eks_addon.ebs_csi_driver
+  ]
+}

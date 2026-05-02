@@ -25,10 +25,11 @@ echo "To get the initial admin password, run:"
 echo "  kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d"
 echo ""
 
-# Step 4 — Port forward (blocking)
+# Step 4 — Apply ArgoCD app
+echo "Applying ArgoCD app..."
+kubectl apply -f argocd-apps/dota2-dev.yaml
+echo "✅ ArgoCD app applied!"
+
+# Step 5 — Port forward (blocking)
 echo "Starting port-forward on http://localhost:8080 (Ctrl+C to stop)..."
 kubectl port-forward svc/argocd-server -n argocd 8080:443
-
-# Step 5 — Get the initial admin password
-# Open a new terminal tab and run:
-# kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d

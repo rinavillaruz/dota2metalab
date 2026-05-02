@@ -4,7 +4,7 @@ global:
 
 # Image settings — GitHub Actions will update this tag with SHA
 image:
-  tag: ee1775326edcc135873f42e94007624406782ba3
+  tag: 3f03abb238d891a7f8cf135b4bc21665bbb3714c
 
 # MongoDB settings
 mongodb:

@@ -229,6 +229,9 @@ jobs:
           IMAGE_TAG="${IMAGE_TAG:0:7}"
           echo "Updating values-dev.yaml with tag: $IMAGE_TAG"
 
+          git fetch origin env/dev
+          git checkout env/dev
+
           perl -i -pe "s/tag:.*/tag: $IMAGE_TAG/" deploy/helm/values-dev.yaml
 
           git config user.email "142535552+rinavillaruz@users.noreply.github.com"

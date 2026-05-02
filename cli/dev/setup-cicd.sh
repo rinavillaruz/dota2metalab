@@ -52,10 +52,18 @@ echo "Admin password:"
 kubectl -n argocd get secret argocd-initial-admin-secret \
     -o jsonpath="{.data.password}" | base64 -d
 echo ""
-echo "ArgoCD UI: https://localhost:8080"
+echo "ArgoCD UI: http://localhost:8080"
 echo ""
 
 # Step 4 — Port forward (blocking)
-echo "🚀 Step 4: Starting port-forward on https://localhost:8080 (Ctrl+C to stop)..."
-sleep 10    # ← give ArgoCD server more time
-kubectl port-forward svc/argocd-server -n argocd 8080:80 || true  # ← don't fail on disconnect
+echo "🚀 Step 4: Starting port-forward on http://localhost:8080 (Ctrl+C to stop)..."
+
+echo "⏳ Waiting for ArgoCD server to be fully ready..."
+kubectl wait --for=condition=Ready pod \
+    -l app.kubernetes.io/name=argocd-server \
+    -n argocd \
+    --timeout=120s
+echo "✅ ArgoCD server ready!"
+
+sleep 5
+kubectl port-forward svc/argocd-server -n argocd 8080:80 || true

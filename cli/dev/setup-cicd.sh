@@ -58,4 +58,4 @@ echo ""
 # Step 4 — Port forward (blocking)
 echo "🚀 Step 4: Starting port-forward on https://localhost:8080 (Ctrl+C to stop)..."
 sleep 10    # ← give ArgoCD server more time
-kubectl port-forward svc/argocd-server -n argocd 8080:443 || true  # ← don't fail on disconnect
+kubectl port-forward svc/argocd-server -n argocd 8080:80 || true  # ← don't fail on disconnect

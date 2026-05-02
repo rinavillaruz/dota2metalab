@@ -2,9 +2,9 @@
 
 dev-up:
 	@echo "Creating Kind Cluster..."
-	@kind create cluster --name dota2metalab --config infrastructure/kind/cluster.yaml
+	@kind create cluster --name dota2metalab --config infrastructure/kind/cluster.yaml 2>/dev/null || echo "⚠️  Cluster already exists, skipping creation..."
 	@echo "Cluster created!"
-	@./cli/setup-cicd.sh
+	@./cli/dev/setup-cicd.sh
 
 dev-down:
-	@./cli/destroy-cluster.sh
+	@./cli/dev/destroy-cluster.sh

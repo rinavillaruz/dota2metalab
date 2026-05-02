@@ -226,11 +226,10 @@ jobs:
       - name: Update image tag in values-dev.yaml
         run: |
           IMAGE_TAG="${{ github.sha }}"
-          IMAGE_TAG="${IMAGE_TAG:0:7}"
           echo "Updating values-dev.yaml with tag: $IMAGE_TAG"
 
-          git fetch origin env/dev
-          git checkout env/dev
+          git fetch origin dev
+          git checkout dev
 
           perl -i -pe "s/tag:.*/tag: $IMAGE_TAG/" deploy/helm/values-dev.yaml
 
@@ -238,4 +237,4 @@ jobs:
           git config user.name "rinavillaruz"
           git add deploy/helm/values-dev.yaml
           git commit -m "ci: update image tag to $IMAGE_TAG"
-          git push origin HEAD:env/dev
+          git push origin HEAD:dev

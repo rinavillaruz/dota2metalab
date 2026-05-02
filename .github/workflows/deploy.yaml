@@ -235,4 +235,4 @@ jobs:
           git config user.name "rinavillaruz"
           git add deploy/helm/values-dev.yaml
           git commit -m "ci: update image tag to $IMAGE_TAG"
-          git push origin dev
+          git push origin HEAD:env/dev

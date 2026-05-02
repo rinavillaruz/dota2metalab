@@ -20,30 +20,16 @@ confirm() {
 delete_argocd() {
     echo "🗑️  Deleting ArgoCD..."
     helm uninstall argocd --namespace argocd 2>/dev/null || echo "ArgoCD not found, skipping..."
-    kubectl delete namespace argocd --ignore-not-found 2>/dev/null || true
 
-    echo "⏳ Waiting for argocd namespace to be fully deleted..."
-    count=0
-    while kubectl get namespace argocd &>/dev/null; do
-        count=$((count + 1))
-        echo "  ${count}s - still deleting..."
+    # Delete CRDs that helm keeps — no waiting
+    kubectl delete crd \
+        applications.argoproj.io \
+        applicationsets.argoproj.io \
+        appprojects.argoproj.io \
+        --wait=false \
+        2>/dev/null || echo "CRDs not found, skipping..."
 
-        # After 10 seconds, force remove finalizers
-        if [ $count -eq 10 ]; then
-            echo "  ⚠️  Stuck! Force removing finalizers..."
-            kubectl patch namespace argocd \
-                -p '{"metadata":{"finalizers":[]}}' \
-                --type=merge 2>/dev/null || true
-        fi
-
-        if [ $count -eq 30 ]; then
-            echo "  ⚠️  Stuck for 30s! Skipping — cluster deletion will clean it up..."
-            break
-        fi
-
-        sleep 1
-    done
-    echo "✅ ArgoCD deleted after ${count}s!"
+    echo "✅ ArgoCD uninstalled! Cluster deletion will clean up the rest."
 }
 
 delete_cluster() {

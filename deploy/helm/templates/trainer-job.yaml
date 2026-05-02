@@ -4,9 +4,7 @@ metadata:
   name: dota2metalab-trainer
   namespace: {{ .Values.global.namespace }}
   annotations:
-    "helm.sh/hook": pre-install
-    "helm.sh/hook-weight": "2"
-    "helm.sh/hook-delete-policy": hook-succeeded
+    "argocd.argoproj.io/sync-wave": "2"
 spec:
   backoffLimit: 3 #defaults to 6
   template:

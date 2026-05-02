@@ -58,15 +58,15 @@ echo "✅ ArgoCD pods ready after ${count}s!"
 # Step 3 — Apply ArgoCD app
 echo "⏳ Step 3: Applying ArgoCD app..."
 kubectl apply -f argocd-apps/dota2-dev.yaml 2>/dev/null
-echo "⏳ Waiting for dota2-dev app to sync..."
-count=0
-while [ "$(kubectl get application dota2-dev -n argocd -o jsonpath='{.status.sync.status}')" != "Synced" ]; do
-  count=$((count + 1))
-  STATUS=$(kubectl get application dota2-dev -n argocd -o jsonpath='{.status.sync.status}' 2>/dev/null || echo "pending")
-  HEALTH=$(kubectl get application dota2-dev -n argocd -o jsonpath='{.status.health.status}' 2>/dev/null || echo "pending")
-  echo "  ${count}s - sync: ${STATUS} | health: ${HEALTH}"
-  sleep 5
-done
+# echo "⏳ Waiting for dota2-dev app to sync..."
+# count=0
+# while [ "$(kubectl get application dota2-dev -n argocd -o jsonpath='{.status.sync.status}')" != "Synced" ]; do
+#   count=$((count + 1))
+#   STATUS=$(kubectl get application dota2-dev -n argocd -o jsonpath='{.status.sync.status}' 2>/dev/null || echo "pending")
+#   HEALTH=$(kubectl get application dota2-dev -n argocd -o jsonpath='{.status.health.status}' 2>/dev/null || echo "pending")
+#   echo "  ${count}s - sync: ${STATUS} | health: ${HEALTH}"
+#   sleep 5
+# done
 echo "✅ ArgoCD app applied and ready!"
 
 echo ""

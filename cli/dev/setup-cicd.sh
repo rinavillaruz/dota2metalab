@@ -1,10 +1,5 @@
 #!/bin/bash
 
-set -euo pipefail
-
-trap 'echo "❌ Error on line $LINENO - deployment failed"' ERR
-trap 'echo "👋 Deploy script finished"' EXIT
-
 echo "🚀 Starting ArgoCD deployment..."
 
 # Step 0 — Cleanup any existing ArgoCD
@@ -62,5 +57,5 @@ echo ""
 
 # Step 4 — Port forward (blocking)
 echo "🚀 Step 4: Starting port-forward on https://localhost:8080 (Ctrl+C to stop)..."
-sleep 3
-kubectl port-forward svc/argocd-server -n argocd 8080:443
+sleep 10    # ← give ArgoCD server more time
+kubectl port-forward svc/argocd-server -n argocd 8080:443 || true  # ← don't fail on disconnect

@@ -4,7 +4,7 @@ configs:
 
 server:
   service:
-    type: LoadBalancer
+    type: ClusterIP
   replicas: 1
   resources:
     requests:

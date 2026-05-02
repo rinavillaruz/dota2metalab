@@ -7,6 +7,17 @@ trap 'echo "👋 Deploy script finished"' EXIT
 
 echo "🚀 Starting ArgoCD deployment..."
 
+# Step 0 — Cleanup any existing ArgoCD
+echo "🧹 Step 0: Cleaning up any existing ArgoCD..."
+helm uninstall argocd --namespace argocd 2>/dev/null || true
+kubectl delete crd \
+    applications.argoproj.io \
+    applicationsets.argoproj.io \
+    appprojects.argoproj.io \
+    --wait=false 2>/dev/null || true
+kubectl delete namespace argocd --ignore-not-found --wait=false 2>/dev/null || true
+echo "✅ Cleanup done!"
+
 # Needs to get ARGOCD_CHART_VERSION from here
 # helm repo add argo https://argoproj.github.io/argo-helm
 # helm repo update
@@ -46,7 +57,7 @@ echo "✅ ArgoCD pods ready after ${count}s!"
 
 # Step 3 — Apply ArgoCD app
 echo "⏳ Step 3: Applying ArgoCD app..."
-kubectl apply -f argocd-apps/dota2-dev.yaml
+kubectl apply -f argocd-apps/dota2-dev.yaml 2>/dev/null
 echo "⏳ Waiting for dota2-dev app to sync..."
 count=0
 while [ "$(kubectl get application dota2-dev -n argocd -o jsonpath='{.status.sync.status}')" != "Synced" ]; do

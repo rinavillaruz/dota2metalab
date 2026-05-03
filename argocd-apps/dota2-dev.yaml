@@ -8,14 +8,17 @@ metadata:
 spec:
   project: default
 
-  source:
-    repoURL: https://github.com/rinavillaruz/dota2metalab
-    targetRevision: dev
-    path: deploy/helm
-    helm:
-      valueFiles:
-        - values.yaml
-        - values-dev.yaml
+  sources:
+    - repoURL: https://github.com/rinavillaruz/dota2metalab
+      targetRevision: dev
+      path: deploy/helm
+      helm:
+        valueFiles:
+          - values.yaml
+          - $env_dev/deploy/helm/values-dev.yaml
+    - repoURL: https://github.com/rinavillaruz/dota2metalab
+      targetRevision: env/dev
+      ref: env_dev 
 
   destination:
     server: https://kubernetes.default.svc

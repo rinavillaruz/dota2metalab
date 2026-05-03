@@ -82,8 +82,8 @@ jobs:
           fi
   build-api:
     runs-on: self-hosted
-    needs: [ check-api ]
-    if: always() && needs.check-base.result == 'success' && needs.check-api.outputs.changed == 'true'
+    needs: [check-api, check-fetcher]
+    if: always() && (needs.check-fetcher.result == 'success') && needs.check-api.outputs.changed == 'true'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -133,8 +133,8 @@ jobs:
           fi
   build-trainer:
     runs-on: self-hosted
-    needs: check-trainer
-    if: always() && needs.check-base.result == 'success' && needs.check-trainer.outputs.changed == 'true'
+    needs: [check-trainer, check-fetcher]
+    if: always() && (needs.check-fetcher.result == 'success') && needs.check-trainer.outputs.changed == 'true'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -158,7 +158,8 @@ jobs:
           cache-to: type=gha,mode=max
   check-fetcher:
     runs-on: self-hosted
-    needs: build-base
+    needs: [build-base, check-base]
+    if: always() && (needs.build-base.result == 'success' || needs.build-base.result == 'skipped')
     outputs:
       changed: ${{ steps.check.outputs.changed }}
     steps:
@@ -185,7 +186,7 @@ jobs:
   build-fetcher:
     runs-on: self-hosted
     needs: check-fetcher
-    if: always() && needs.check-base.result == 'success' && needs.check-fetcher.outputs.changed == 'true'
+    if: always() && (needs.check-fetcher.result == 'success') && needs.check-fetcher.outputs.changed == 'true'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -228,8 +229,8 @@ jobs:
           IMAGE_TAG="${{ github.sha }}"
           echo "Updating values-dev.yaml with tag: $IMAGE_TAG"
 
-          git fetch origin dev
-          git checkout dev
+          git fetch origin env/dev
+          git checkout env/dev
 
           perl -i -pe "s/tag:.*/tag: $IMAGE_TAG/" deploy/helm/values-dev.yaml
 
@@ -237,4 +238,4 @@ jobs:
           git config user.name "rinavillaruz"
           git add deploy/helm/values-dev.yaml
           git commit -m "ci: update image tag to $IMAGE_TAG"
-          git push origin HEAD:dev
+          git push origin HEAD:env/dev

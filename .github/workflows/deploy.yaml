@@ -1,8 +1,9 @@
 name: CI/CD pipeline
 
-push:
-  branches:
-    - dev
+on:
+  push:
+    branches:
+      - dev
   workflow_dispatch:
     inputs:
       force_rebuild:
@@ -38,6 +39,7 @@ jobs:
               && echo "changed=true" >> $GITHUB_OUTPUT \
               || echo "changed=false" >> $GITHUB_OUTPUT
           fi
+
   build-base:
     runs-on: self-hosted
     needs: check-base
@@ -61,6 +63,37 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/dota2metalab-base:latest
           cache-from: type=gha,scope=base
           cache-to: type=gha,mode=max
+
+  check-fetcher:
+    runs-on: self-hosted
+    needs: [build-base, check-base]
+    if: always() && (needs.build-base.result == 'success' || needs.build-base.result == 'skipped')
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Debug base change check
+        run: |
+          echo "Changed files:"
+          git diff --name-only HEAD~1 HEAD
+          echo "HEAD~1 exists:"
+          git rev-parse HEAD~1 || echo "no HEAD~1"
+      - name: Check if fetcher change
+        id: check
+        run: |
+          if [ "${{ github.event.inputs.force_rebuild }}" == "true" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          elif ! git rev-parse HEAD~1 >/dev/null 2>&1; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            git diff --name-only HEAD~1 HEAD | grep -q "build/Dockerfile.fetcher\|build/requirements-fetcher\|scripts/store_database.py" \
+              && echo "changed=true" >> $GITHUB_OUTPUT \
+              || echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
   check-api:
     runs-on: self-hosted
     needs: check-fetcher
@@ -78,7 +111,7 @@ jobs:
           git diff --name-only HEAD~1 HEAD
           echo "HEAD~1 exists:"
           git rev-parse HEAD~1 || echo "no HEAD~1"
-      - name: Check if base change
+      - name: Check if api change
         id: check
         run: |
           if [ "${{ github.event.inputs.force_rebuild }}" == "true" ]; then
@@ -86,10 +119,41 @@ jobs:
           elif ! git rev-parse HEAD~1 >/dev/null 2>&1; then
             echo "changed=true" >> $GITHUB_OUTPUT
           else
-            git diff --name-only HEAD~1 HEAD | grep -q "Dockerfile.base\|requirements-base.txt" \
+            git diff --name-only HEAD~1 HEAD | grep -q "build/Dockerfile.api\|build/requirements-api\|src/api/" \
               && echo "changed=true" >> $GITHUB_OUTPUT \
               || echo "changed=false" >> $GITHUB_OUTPUT
           fi
+
+  check-trainer:
+    runs-on: self-hosted
+    needs: check-fetcher
+    if: always() && needs.check-fetcher.result == 'success'
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Debug base change check
+        run: |
+          echo "Changed files:"
+          git diff --name-only HEAD~1 HEAD
+          echo "HEAD~1 exists:"
+          git rev-parse HEAD~1 || echo "no HEAD~1"
+      - name: Check if trainer change
+        id: check
+        run: |
+          if [ "${{ github.event.inputs.force_rebuild }}" == "true" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          elif ! git rev-parse HEAD~1 >/dev/null 2>&1; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            git diff --name-only HEAD~1 HEAD | grep -q "build/Dockerfile.trainer\|build/requirements-trainer\|scripts/train_model.py" \
+              && echo "changed=true" >> $GITHUB_OUTPUT \
+              || echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
   build-api:
     runs-on: self-hosted
     needs: [check-api, check-fetcher]
@@ -115,35 +179,7 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/dota2metalab-api:latest
           cache-from: type=gha,scope=api
           cache-to: type=gha,mode=max
-  check-trainer:
-    runs-on: self-hosted
-    needs: check-fetcher
-    if: always() && needs.check-fetcher.result == 'success'
-    outputs:
-      changed: ${{ steps.check.outputs.changed }}
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-      - name: Debug base change check
-        run: |
-          echo "Changed files:"
-          git diff --name-only HEAD~1 HEAD
-          echo "HEAD~1 exists:"
-          git rev-parse HEAD~1 || echo "no HEAD~1"
-      - name: Check if base change
-        id: check
-        run: |
-          if [ "${{ github.event.inputs.force_rebuild }}" == "true" ]; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-          elif ! git rev-parse HEAD~1 >/dev/null 2>&1; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-          else
-            git diff --name-only HEAD~1 HEAD | grep -q "Dockerfile.base\|requirements-base.txt" \
-              && echo "changed=true" >> $GITHUB_OUTPUT \
-              || echo "changed=false" >> $GITHUB_OUTPUT
-          fi
+
   build-trainer:
     runs-on: self-hosted
     needs: [check-trainer, check-fetcher]
@@ -169,35 +205,7 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/dota2metalab-trainer:latest
           cache-from: type=gha,scope=trainer
           cache-to: type=gha,mode=max
-  check-fetcher:
-    runs-on: self-hosted
-    needs: [build-base, check-base]
-    if: always() && (needs.build-base.result == 'success' || needs.build-base.result == 'skipped')
-    outputs:
-      changed: ${{ steps.check.outputs.changed }}
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-      - name: Debug base change check
-        run: |
-          echo "Changed files:"
-          git diff --name-only HEAD~1 HEAD
-          echo "HEAD~1 exists:"
-          git rev-parse HEAD~1 || echo "no HEAD~1"
-      - name: Check if base change
-        id: check
-        run: |
-          if [ "${{ github.event.inputs.force_rebuild }}" == "true" ]; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-          elif ! git rev-parse HEAD~1 >/dev/null 2>&1; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-          else
-            git diff --name-only HEAD~1 HEAD | grep -q "Dockerfile.base\|requirements-base.txt" \
-              && echo "changed=true" >> $GITHUB_OUTPUT \
-              || echo "changed=false" >> $GITHUB_OUTPUT
-          fi
+
   build-fetcher:
     runs-on: self-hosted
     needs: check-fetcher
@@ -223,26 +231,23 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/dota2metalab-fetcher:latest
           cache-from: type=gha,scope=fetcher
           cache-to: type=gha,mode=max
-      
+
   deploy-dev:
     runs-on: self-hosted
-    needs: [ build-api, build-trainer, build-fetcher ]
+    needs: [build-api, build-trainer, build-fetcher]
     permissions:
       contents: write
-    if: always() && (needs.build-api.result == 'success' || needs.build-trainer.result == 'success' || needs.build-fetcher.result == 'success') 
+    if: always() && (needs.build-api.result == 'success' || needs.build-trainer.result == 'success' || needs.build-fetcher.result == 'success')
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}  # needs write permission to push
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update image tag in values-dev.yaml
         run: |
           IMAGE_TAG="${{ github.sha }}"
           echo "Updating values-dev.yaml with tag: $IMAGE_TAG"
-
-          git fetch origin env/dev
-          git checkout env/dev
 
           perl -i -pe "s/tag:.*/tag: $IMAGE_TAG/" deploy/helm/values-dev.yaml
 
@@ -250,4 +255,4 @@ jobs:
           git config user.name "rinavillaruz"
           git add deploy/helm/values-dev.yaml
           git commit -m "ci: update image tag to $IMAGE_TAG"
-          git push origin HEAD:env/dev
+          git push origin HEAD:dev

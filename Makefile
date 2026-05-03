@@ -8,3 +8,6 @@ dev-up:
 
 dev-down:
 	@./cli/dev/destroy-cluster.sh
+
+sync:
+	@git pull origin dev --rebase

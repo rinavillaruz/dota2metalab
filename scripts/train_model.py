@@ -71,4 +71,4 @@ model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y
 # Save
 model.save(f'{MODEL_DIR}/dota2_model.h5')
 joblib.dump(scaler, f'{MODEL_DIR}/scaler.pkl')
-print("Model saved!")
+print("Model saved!")# trigger build Sun May  3 13:05:43 CEST 2026

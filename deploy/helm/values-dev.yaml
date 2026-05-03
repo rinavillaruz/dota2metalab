@@ -1,0 +1,19 @@
+# Global settings
+global:
+  namespace: dota2metalab-dev
+
+# Image settings — GitHub Actions will update this tag with SHA
+image:
+  tag: 2d2a99a2f4c973208c162f24499db3038960cc5d
+
+# MongoDB settings
+mongodb:
+  persistence:
+    size: 2Gi
+    storageClassName: standard
+
+# Models storage
+models:
+  persistence:
+    size: 500Mi
+    storageClassName: standard

@@ -1,0 +1,36 @@
+venv/
+__pycache__/
+*.pyc
+models/
+actions-runner*/
+venv/
+
+# =============================================================================
+# OPERATING SYSTEMS
+# =============================================================================
+.DS_Store
+Thumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+*.zip
+
+# =============================================================================
+# TERRAFORM
+# =============================================================================
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup
+*.tfstate.*.backup
+terraform.tfvars
+*.auto.tfvars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+crash.log
+crash.*.log
+.terraformrc
+terraform.rc
